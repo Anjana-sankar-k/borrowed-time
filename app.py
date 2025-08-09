@@ -3,9 +3,7 @@ from supabase import create_client
 from dotenv import load_dotenv
 import os, uuid, random, string, datetime
 
-# -------------------------
 # Config / Secrets
-# -------------------------
 load_dotenv()  
 
 SUPABASE_URL = os.getenv("SUPABASE_URL") or st.secrets.get("SUPABASE_URL")
@@ -17,9 +15,7 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# -------------------------
 # Helpers
-# -------------------------
 def gen_code(n=6):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=n))
 
@@ -34,18 +30,25 @@ def upload_to_bucket(bucket, uploaded_file, prefix=""):
     supabase.storage.from_(bucket).upload(fname, data)
     return f"{SUPABASE_URL}/storage/v1/object/public/{bucket}/{fname}"
 
-# --- Users (simple 'login' by username) ---
+# --- Users'login' by username ---
 def create_or_get_user(username):
     username = username.strip()
     if not username:
         return None
+    
+    # First, check if user exists
     q = supabase.table("users").select("*").eq("username", username).execute()
     if q.data:
         return q.data[0]
-    # create
-    new_id = str(uuid.uuid4())
-    supabase.table("users").insert({"id": new_id, "username": username}).execute()
-    return {"id": new_id, "username": username}
+        
+    res = supabase.table("users").insert({"username": username}).select("*").execute()
+    
+    if res.data:
+        return res.data[0]
+    
+    st.error("Could not create or retrieve user. Check RLS policies.")
+    return None
+
 
 # --- Circles ---
 def create_circle(name, owner_id):
@@ -55,12 +58,13 @@ def create_circle(name, owner_id):
         "id": circle_id,
         "name": name,
         "join_code": join_code,
-        "created_by": owner_id
+        "owner_id": owner_id
     }).execute()
     # add owner as member
     supabase.table("circle_members").insert({
         "circle_id": circle_id,
-        "user_id": owner_id
+        "user_id": owner_id,
+        "role": "owner"
     }).execute()
     return circle_id, join_code
 
@@ -72,7 +76,8 @@ def join_circle(join_code, user_id):
     # insert member (unique constraint prevents duplicates)
     supabase.table("circle_members").insert({
         "circle_id": circle["id"],
-        "user_id": user_id
+        "user_id": user_id,
+        "role": "member"
     }).execute()
     return circle
 
@@ -85,11 +90,12 @@ def get_user_circles(user_id):
     return circles
 
 # --- Challenges ---
-def add_challenge(circle_id, title, description, created_by):
+# --- Challenges ---
+def add_challenge(circle_id, title, description, created_by): # <-- Corrected arguments
     supabase.table("challenges").insert({
         "circle_id": circle_id,
-        "title": title,
-        "description": description,
+        "title": title,          # <-- Use 'title' instead of 'text'
+        "description": description, # <-- Add description
         "created_by": created_by
     }).execute()
 
@@ -196,9 +202,8 @@ def list_shame_last_24h():
         items.append({"username": uname, "file_url": pick["file_url"], "date": s["date"]})
     return items
 
-# -------------------------
+
 # UI
-# -------------------------
 st.set_page_config(page_title="Plot Chain — Simple Auth MVP", layout="wide")
 st.title("📜 Plot Chain — Simple Auth (TenTen style)")
 
@@ -310,6 +315,7 @@ elif mode == "Circle View":
         st.subheader("Challenges")
         chs = list_challenges(circle["id"])
         for ch in chs:
+            # This line now works because we insert 'title' and 'description'
             st.write(f"- **{ch['title']}** — {ch.get('description','')}")
         st.write("Add a new challenge")
         t = st.text_input("Title", key="ch_title")
@@ -318,6 +324,7 @@ elif mode == "Circle View":
             if not t.strip():
                 st.error("Enter title")
             else:
+                # This call now correctly matches the function definition
                 add_challenge(circle["id"], t.strip(), d.strip(), user["id"])
                 st.success("Added challenge")
                 st.rerun()
