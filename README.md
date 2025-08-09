@@ -153,11 +153,11 @@ For Software:
 
 ### Project Demo
 # Video
-[Add your demo video link here]
-*Explain what the video demonstrates*
+![Demo video] (https://youtu.be/HHsKZrOyCMY)
+*The video demonstrates how the app works for a first-time user (an easter egg is hidden-click around and find out!)*
 
 ### Hosted Link
-[click here](https://borrowedtime.vercel.app/)
+[click here](https://borrowedtime-ten.vercel.app//)
 
 
 ## Team Contributions
