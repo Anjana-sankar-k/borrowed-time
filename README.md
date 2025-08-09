@@ -141,14 +141,14 @@ yarn start
 For Software:
 
 # Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
+![Home Page](https://i.imgur.com/TA4mBir.png)
+*Home Page to start simulation*
 
-![Screenshot2](Add screenshot 2 here with proper name)
-*Add caption explaining what this shows*
+![The simulation](https://i.imgur.com/LF04GWb.png)
+*The brief and beautiful 60 seconds*
 
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
+![The end](https://i.imgur.com/rzZMCUR.png)
+*The ending scene*
 
 
 ### Project Demo
@@ -157,7 +157,7 @@ For Software:
 *Explain what the video demonstrates*
 
 ### Hosted Link
-(Click here) -> [https://borrowedtime.vercel.app/]
+[click here](https://borrowedtime.vercel.app/)
 
 
 ## Team Contributions
