@@ -96,11 +96,10 @@ def add_challenge(circle_id, title, description, created_by): # <-- Corrected ar
         "circle_id": circle_id,
         "title": title,          # <-- Use 'title' instead of 'text'
         "description": description, # <-- Add description
-        "created_by": created_by
     }).execute()
 
 def list_challenges(circle_id):
-    return supabase.table("challenges").select("*").eq("circle_id", circle_id).order("created_at", desc=True).execute().data or []
+    return supabase.table("challenges").select("*").eq("circle_id", circle_id).execute().data or []
 
 # --- Embarrassing posts ---
 def save_embarrassing(user_id, url):
@@ -204,8 +203,8 @@ def list_shame_last_24h():
 
 
 # UI
-st.set_page_config(page_title="Plot Chain — Simple Auth MVP", layout="wide")
-st.title("📜 Plot Chain — Simple Auth (TenTen style)")
+st.set_page_config(page_title="Plot", layout="wide")
+st.title("For the Plot")
 
 # session user object: {"id","username"}
 if "user" not in st.session_state:
